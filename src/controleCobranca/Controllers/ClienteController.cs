@@ -1,11 +1,13 @@
 ﻿using controleCobranca.Data;
 using controleCobranca.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace controleCobranca.Controllers
 {
@@ -30,6 +32,34 @@ namespace controleCobranca.Controllers
         public Cliente Get(int Indice)
         {
             return _context.Clientes.FirstOrDefault(cliente => cliente.indice == Indice);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> Create(Cliente c)
+        {
+
+            try
+            {
+                _context.Add(c);
+
+                if(await saveChangesAsync())
+                {
+                    return Created($"cliente/{c.indice}", c);
+
+                }
+            }
+            catch(System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Sua Requisição Falhou");
+            }
+
+            return BadRequest();
+           
+        }
+
+        public async Task<bool> saveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync()) > 0;
         }
 
     }
