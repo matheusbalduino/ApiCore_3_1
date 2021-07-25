@@ -33,20 +33,50 @@ namespace controleCobranca.Controllers
         {
             return _context.Clientes.FirstOrDefault(cliente => cliente.indice == Indice);
         }
-        
-        [HttpPost]
+
+        [HttpPost("one")]
         public async Task<IActionResult> Create(Cliente c)
         {
 
             try
             {
-                _context.Add(c);
+               _context.Add(c);
 
-                if(await saveChangesAsync())
+                if (await saveChangesAsync())
                 {
                     return Created($"cliente/{c.indice}", c);
 
                 }
+
+
+            }
+            catch (System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Sua Requisição Falhou");
+            }
+
+            return BadRequest();
+
+        }
+
+        [HttpPost("many")]
+        public async Task<IActionResult> Create(List<Cliente> listaCliente)
+        {
+
+            try
+            {
+                foreach(Cliente c in listaCliente)
+                {
+                    _context.Add(c);
+                    
+                }
+                if (await saveChangesAsync())
+                {
+                    return Created($"cliente/{listaCliente}", listaCliente);
+
+                }
+
+
             }
             catch(System.Exception)
             {
